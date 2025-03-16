@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="to-do.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-do app</title>
+</head>
+<body>
+    <h2>To-do App</h2>
+    <div class="main-div">
+    <div class="sub-div">
+    <div class="add-task">
+    <button class="add-button" onClick="addTask()" title="Click to add a new task">+</button>
+    <span>Add new task</span>
+    </div>
+    </div>
+    <div class="before-prompt">
+        <label>Enter task-name</label><br>
+        <input type="text" class="SetTaskName"><br>
+        <label>Enter due-date and hour</label><br>
+        <input type="datetime-local" class="SetTaskDeadline"><br>
+        <button onClick="cancel()">Cancel</button>
+        <button onClick="creatingTask()" class="addButton">add</button>
+        <p class="addText"></p>
+    </div>
+    </div>
+<script>
+    const add = document.querySelector('.before-prompt');
+    const referenceDiv = document.querySelector('.add-task');
+    const SetTaskValue = document.querySelector('.SetTaskName');
+    const SetTaskDeadline = document.querySelector('.SetTaskDeadline');
+    const addText = document.querySelector(".addText");
+    var div,spanElement1,spanElement2,checkElement,img,subDiv,updatedTask;
+
+    window.onload = displayTask;
+
+    function creatingTask() {
+        if((SetTaskValue.value == "" && SetTaskDeadline.value == "") || (SetTaskValue.value != "" && SetTaskDeadline.value == "") ||
+        (SetTaskValue.value == "" && SetTaskDeadline.value != "")) {
+            addText.style.display = "inline-block";
+            addText.innerHTML = "Please enter name and provide a deadline";
+            setTimeout(()=> addText.style.display = "none"
+            ,2000);
+        }
+        else {
+            let task = {
+            taskName : SetTaskValue.value,
+            taskDeadline : SetTaskDeadline.value,
+            completed : false
+            };
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.push(task);
+        localStorage.setItem("tasks",JSON.stringify(tasks));
+        SetTaskValue.value = "";
+        SetTaskDeadline.value = "";
+        displayTask();
+    }}
+
+        function displayTask() {
+        let tasks = JSON.parse(localStorage.getItem("tasks"));
+        subDiv = document.querySelector(".sub-div");
+        while(subDiv.children.length > 1) {
+            subDiv.lastChild.remove();
+        }
+        tasks.forEach((task)=> {
+        div = document.createElement("div");
+        spanElement1 = document.createElement("span");
+        spanElement2 = document.createElement("span");
+        checkElement = document.createElement("input");
+        checkElement.type = "checkbox";
+        div.appendChild(checkElement);
+        div.appendChild(spanElement1);
+        div.appendChild(spanElement2);
+        subDiv.appendChild(div);
+        checkElement.setAttribute("title","Click to set task as completed");
+        spanElement1.innerHTML = task.taskName;
+        spanElement2.innerHTML = task.taskDeadline;
+        spanElement1.className = "span1";
+        spanElement2.className = "span2";
+        checkElement.className = "only_checkbox";
+        checkElement.checked = task.completed;
+        displayTaskCompleted(div, task, spanElement1, spanElement2);
+        add.className = "before-prompt";
+        checkElement.addEventListener("change",(e) => {
+            task.completed = e.target.checked;
+            updatedTask = tasks.map( t => {
+                if(t.taskName == task.taskName && t.taskDeadline == task.taskDeadline) {
+                    t.completed = e.target.checked;
+                }else{}
+                return t;
+            }); 
+            localStorage.setItem("tasks",JSON.stringify(updatedTask));
+            displayTask();
+    })
+    })};
+
+    function displayTaskCompleted(div, task, spanElement1, spanElement2) {
+        if (task.completed) {
+        spanElement1.innerHTML = "Task Completed";
+        spanElement2.innerHTML = "";
+        div.className = "added";
+        div.className = "addedNotVisible";
+        }
+        else {
+        div.className = "added";
+    }}
+
+   
+
+    function addTask() {
+        add.className = "prompt-div";
+    }
+
+    function cancel() {
+        add.className = "before-prompt";
+    }
+</script>
+</body>
+</html>
